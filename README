@@ -1,0 +1,126 @@
+===============================================================================
+
+  TEACA BOGDAN
+
+===============================================================================
+
+    1. Organizare
+
+Am impartit clasele din tema in 3 pachete "shapes", "visitor" si "utils",
+fiecare continand clase specifice acelui pachet.
+
+In pachetul "shapes" am inclus clasele ce implementeaza figurile geometrice:
+"Shape", "Square", "Line", "Circle", etc. Clasa abstracta "Shape" este
+mostenita de restul claselor din pachet.
+
+In pachetul "utils" am inclus clasele "Point" (care stocheaza doua coordonate
+(x,y) ale unui punct si contine metode specifice punctului), clasele
+"ColorUtils", "ShapeFactory" si enum-ul "RelativePointPosition".
+
+In pachetul "visitor" am inclus clasa si interfetele ce implementeaza Visitor
+Pattern: "Visitable", "Visitor" si "DrawVisitor".
+
+===============================================================================
+
+    2. Implementare
+
+Pentru citirea din fisier-ul de intrare am folosit BufferedReader impreuna cu
+FileReader. Am folosit Factory Design Pattern pentru a crea un ShapeFactory
+care se ocupa cu crearea formelor geometrice corespunzatoare cerute de fisierul
+de intrare. Am folosit Singleton Design Pattern pentru crearea unei singure
+instante de Canvas, deoarece Canvas-ul este unic pentru fiecare desen in parte.
+Astfel, folosind Singleton, nu permit instantierea a mai mult de un singur
+obiect de tip Canvas. Am folosit Visitor Design Pattern pentru desenarea
+contururilor figurilor geometrice, fiecare tip de figura avand alta forma
+generala si implicit un alt contur. Dupa desenarea conturului unei figuri
+geometrice am folosit metoda "fillShape()" pentru umplerea interiorului figurii
+respective cu o culoare. Acesta metoda implementeaza algoritmul Flood-Fill.
+
+Pentru implementarea diferitelor tipuri de figuri geometrice din program, am
+creat clasa abstracta "Shape" care este mostenita de toate figurile geometrice
+si care contine metode specifice tuturor formelor geometrice cum sunt metoda
+"fillShape()", metoda abstracta de calculare a centrului de greutate al figurii
+(ce trebuie implementata de fiecare subclasa).
+
+Pentru desenarea liniilor am utilizat algoritmul lui Bresenham de desenare a
+liniilor, iar pentru desenarea conturului cercurilor am utilizat algoritmul
+lui Bresenham de desenare a cercurilor. Acesti algoritmi sunt implementati in
+clasa "DrawVisitor" care se ocupa cu desenarea contururilor figurilor.
+
+Pentru crearea imaginilor PNG, am creat un "BufferedImage" in Canvas (care
+foloseste Singleton Pattern). In acest BufferedImage fac toate desenele
+figurilor geometrice, iar la finalul programului utilizez ImageIO.write si
+BufferedImage-ul pentru a crea fisier-ul PNG propriu-zis.
+
+===============================================================================
+
+    3. Implementare Flood-Fill
+
+Am implementat algoritmul Flood-Fill in metoda "fillShape()" din clasa "Shape".
+Ca punct initial de unde sa inceapa procedura de Flood-Fill, am ales centrul
+de greutate al figurii geometrice, asa cum este recomandat in enuntul temei.
+
+Astfel am initializat o coada in care sa stochez punctele ce se afla in
+asteptare pentru verificare daca trebuie colorate, careia i-am adaugat ca
+prim element centrul de greutate al figurii.
+
+O problema ce trebuie rezolvata este tratarea cazului in care centrul de
+greutate al figurii se afla in afara Canvas-ului. De aceea, aflu folosind
+metoda "getRelativePointPosition()" care este locatia relativa a punctului
+curent fata de Canvas. Astfel, punctul se poate afla in interiorul, in stanga,
+la dreapta, deasupra sau dedesubtul Canvas-ului. Daca se afla in exterior
+atunci exista posibilitatea ca desi centrul de greutate sa fie in exterior,
+sa existe totusi o bucata din figura care se afla in interiorul Canvas-ului.
+Astfel, daca punctul curent se afla in exteriorul Canvas-ului pun in coada
+punctul vecin dinspre directia Canvas-ului si tot asa pana ajung in zona de
+Canvas, unde incepe algoritmul Flood-Fill propriu-zis.
+
+Pentru punctele care se afla in interiorul Canvas-ului, verific daca acesta
+indeplineste conditiile pentru a fi colorat, iar daca da atunci il colorez
+si adaug in coada cei 4 vecini ai lui. Algoritmul se continua pana cand nu
+mai exista elemente in coada, adica pana cand toate punctele din interiorul
+figurii au fost colorate.
+
+===============================================================================
+
+    4. Visitor Design Pattern
+
+Pentru desenarea contururilor figurilor geometrice am folosit Visitor Design
+Pattern. Am creat interfetele "Visitor" si "Visitable" specifice acestui design
+pattern si clasa "DrawVisitor" care implementeaza interfata "Visitor".
+
+Clasa "DrawVisitor" contine metodele "visit()" pentru fiecare tip de figura
+geometrica si deseneaza conturul acelei figuri. Fiecare clasa ce implementeaza
+figurile geometrice implementeaza interfata "Visitable" cu metoda
+"accept(DrawVisitor)".
+
+Pentru figurile geometrice ce contin laturi, in metoda "visit()" a acestora
+am utilizat si metoda "visit(Line)" pentru desenarea fiecarei laturi a figurii.
+
+===============================================================================
+
+    5. Factory Design Pattern
+
+Pentru crearea diferitelor figuri geometrice cerute in fisierul de intrare, am
+implementat clasa "ShapeFactory" care contine metoda "getShape()". Aceasta 
+metoda primeste tipul si atributele figurii geometrice si pe baza acestora
+creaza obiectul respectiv si il returneaza.
+
+Astfel se face foarte elegant crearea figurilor geometrice cerute in fisierul
+de intrare.
+
+===============================================================================
+
+    6. Singleton Design Pattern
+
+Deoarece Canvas este unic pentru fiecare desen, am implementat Singleton Design
+Pattern pentru Canvas. Astfel am creat in clasa "Canvas" un constructor privat
+si metoda statica "getCanvas()". Constructorul este privat pentru a nu permite
+instantierea unui obiect de tip Canvas folosind direct constructorul.
+
+Instantierea unui obiect Canvas se face apeland metoda "getCanvas()" care
+asigura instantierea unui unic obiect Canvas. Astfel, metoda statica
+"getCanvas()" apeleaza constructorul privat numai daca un obiect Canvas nu a
+mai fost initializat pana atunci.
+
+===============================================================================
